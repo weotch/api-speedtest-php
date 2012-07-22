@@ -7,7 +7,7 @@
 #
 # Host: localhost (MySQL 5.5.9)
 # Database: api_speedtest
-# Generation Time: 2012-07-22 15:33:53 +0000
+# Generation Time: 2012-07-22 17:53:25 +0000
 # ************************************************************
 
 
@@ -29,7 +29,9 @@ CREATE TABLE `data` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `filter` int(10) unsigned NOT NULL,
   `sort` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `filter` (`filter`),
+  KEY `sort` (`sort`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

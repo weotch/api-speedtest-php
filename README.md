@@ -5,9 +5,11 @@ Speed testing a simple REST API built with PHP and MySQL.
 ## Expected stack
 
 - PHP 5.3
+	- Using PDO
 - MySQL 5
 - Slim Framework 1.6.4
 - Mongo 2
+	- Al writes are "saafe"
 - Apache 2
 
 ## Getting Mongo running on MAMP
