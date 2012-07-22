@@ -1,11 +1,5 @@
 <?
 
-/*
-TODO
-- See if we can switch DBs based on the route.  So just one set of controllers.
-- Write sample data
-*/
-
 // Settings
 DEFINE('TOTAL_SAMPLE_ROWS', 100000);
 
