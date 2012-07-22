@@ -11,7 +11,7 @@ $app = new Slim();
 // API Methods
 
 // Seed the database with content
-$app->get('/seed/:db_type', function($db_type='mysql') {
+$app->get('/seed(/:db_type)', function($db_type='mysql') {
 	$time_start = microtime(true);
 
 	// Connect to db
@@ -54,60 +54,31 @@ $app->get('/seed/:db_type', function($db_type='mysql') {
 
 });
 
-// Index, return 100 results
-$app->get('/:db_type', function($db_type='mysql') {
-
-	// connect
-	$dbh = connect($db_type);
-
-	// MySQL
-	if ($db_type == 'mysql') {
-		$sql = "SELECT id FROM data WHERE filter=0 ORDER BY sort LIMIT 100";
-		$sth = $dbh->prepare($sql);
-		if (!$sth->execute()) error($sth);
-		$result = $sth->fetchAll(PDO::FETCH_OBJ);
-
-	//Mongo
-	} elseif ($db_type == 'mongo') { 
-
-		// Query DB
-		$cursor = $dbh->data->find(array("filter" => 0), array('id'))
-			->sort(array('sort' => 1))
-			->limit(100);
-
-		// Create an array.  iterator_to_array() was of no use cause I want to
-		// strip out the _id field
-		$result = array();
-		foreach ($cursor as $item) {
-			$result[] = array('id' => $item['id']);
-		}
-	}
-
-	// Output
-	$response = new stdClass;
-	$response->stat = 'ok';
-	$response->result = $result;
-	exit(json_encode($response));
-
-});
-
-
 // Show
-$app->get('/show', function() {	
+$app->get('/show(/:db_type)', function($db_type='mysql') {	
+
+	// Connect
+	$dbh = connect($db_type);
 
 	// Pick a random number, this is the id we'll find
 	$id = mt_rand(0, TOTAL_SAMPLE_ROWS);
 
-	// Run query
-	$dbh = connect();
-	$sql = "SELECT id, filter FROM data WHERE id=:id";
-	$sth = $dbh->prepare($sql);
-	$sth->bindParam(':id', $id, PDO::PARAM_INT);
-	if (!$sth->execute()) error($sth);
-	$result = $sth->fetch(PDO::FETCH_OBJ);
+	// MySQL
+	if ($db_type == 'mysql') {
+		$sql = "SELECT id, filter FROM data WHERE id=:id";
+		$sth = $dbh->prepare($sql);
+		$sth->bindParam(':id', $id, PDO::PARAM_INT);
+		if (!$sth->execute()) error($sth);
+		$result = $sth->fetch(PDO::FETCH_ASSOC);
+
+	// Mongo
+	} else {
+		$result = $dbh->data->findOne(array("id" => $id), array('id', 'filter'));
+		unset($result['_id']);
+	}
 
 	// Output
-	$result->stat = 'ok';
+	$result['stat'] = 'ok';
 	exit(json_encode($result));
 
 });
@@ -145,6 +116,44 @@ $app->get('/update', function() {
 	// Output a status
 	$response = new stdClass;
 	$response->stat = 'ok';
+	exit(json_encode($response));
+
+});
+
+// Index, return 100 results.  This has to be defined last because of the
+// optional agument it takes will catch /show, for instance
+$app->get('/(:db_type)', function($db_type='mysql') {
+
+	// connect
+	$dbh = connect($db_type);
+
+	// MySQL
+	if ($db_type == 'mysql') {
+		$sql = "SELECT id FROM data WHERE filter=0 ORDER BY sort LIMIT 100";
+		$sth = $dbh->prepare($sql);
+		if (!$sth->execute()) error($sth);
+		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+	//Mongo
+	} elseif ($db_type == 'mongo') { 
+
+		// Query DB
+		$cursor = $dbh->data->find(array("filter" => 0), array('id'))
+			->sort(array('sort' => 1))
+			->limit(100);
+
+		// Create an array.  iterator_to_array() was of no use cause I want to
+		// strip out the _id field
+		$result = array();
+		foreach ($cursor as $item) {
+			$result[] = array('id' => $item['id']);
+		}
+	}
+
+	// Output
+	$response = new stdClass;
+	$response->stat = 'ok';
+	$response->result = $result;
 	exit(json_encode($response));
 
 });
