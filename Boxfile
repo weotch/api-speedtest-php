@@ -1,0 +1,12 @@
+# 
+# This is the configuration for PagodaBox
+# 
+web1:
+  name: app
+  php_version: 5.3.10
+  php_extensions:
+    - pdo_mysql
+    - eaccelerator
+db1:
+  name: db
+  type: mysql
