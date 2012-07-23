@@ -199,15 +199,15 @@ function connect($db_type) {
 	// Switch on db type
 	switch($db_type) {
 		case 'mysql':
-			$user = $_SERVER['MYSQL_USER'];
-			$pass = $_SERVER['MYSQL_PASS'];
-			$host = empty($_SERVER['MYSQL_HOST']) ? 'localhost' : $_SERVER['MYSQL_HOST'];
-			$db   = empty($_SERVER['MYSQL_DB']) ? 'api_speedtest' : $_SERVER['MYSQL_DB'];
+			$user = $_ENV['MYSQL_USER'];
+			$pass = $_ENV['MYSQL_PASS'];
+			$host = empty($_ENV['MYSQL_HOST']) ? 'localhost' : $_ENV['MYSQL_HOST'];
+			$db   = empty($_ENV['MYSQL_DB']) ? 'api_speedtest' : $_ENV['MYSQL_DB'];
 			return new PDO("mysql:host={$host};dbname={$db}", $user, $pass);
 		case 'mongo':
-			$user = empty($_SERVER['MONGO_USER']) ? '' : $_SERVER['MONGO_USER'];
-			$pass = empty($_SERVER['MONGO_PASS']) ? '' : $_SERVER['MONGO_PASS'];
-			$host = empty($_SERVER['MONGO_HOST']) ? 'localhost' : $_SERVER['MONGO_HOST'];
+			$user = empty($_ENV['MONGO_USER']) ? '' : $_ENV['MONGO_USER'];
+			$pass = empty($_ENV['MONGO_PASS']) ? '' : $_ENV['MONGO_PASS'];
+			$host = empty($_ENV['MONGO_HOST']) ? 'localhost' : $_ENV['MONGO_HOST'];
 			$db   = 'api_speedtest';
 			$creds = empty($user) && empty($pass) ? '' : $user . ':'. $pass . '@';
 			$dbh = new Mongo("mongodb://{$creds}{$host}");
