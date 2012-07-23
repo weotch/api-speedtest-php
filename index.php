@@ -98,11 +98,7 @@ $app->get('/insert(/:db_type)', function($db_type='mysql') {
 
 	// Mongo
 	} else {
-		try {
-			$new_id = insertRandomMongo($dbh);
-		} catch(MongoException $e) {
-			checkForMongoError($dbh);
-		}
+		$new_id = insertRandomMongo($dbh);
 	}
 	
 
@@ -115,19 +111,33 @@ $app->get('/insert(/:db_type)', function($db_type='mysql') {
 });
 
 // Update
-$app->get('/update', function() {
+$app->get('/update(/:db_type)', function($db_type='mysql') {
 
 	// Pick a random id to update
 	$id = mt_rand(0, TOTAL_SAMPLE_ROWS);
 	$filter = round(mt_rand(0, TOTAL_SAMPLE_ROWS/100));
 
-	// Run query
-	$dbh = connect();
-	$sql = "UPDATE data SET filter=:filter WHERE id=:id";
-	$sth = $dbh->prepare($sql);
-	$sth->bindParam(':id',     $id,     PDO::PARAM_INT);
-	$sth->bindParam(':filter', $filter, PDO::PARAM_INT);
-	if (!$sth->execute()) mysqlError($sth);
+	// Connect
+	$dbh = connect($db_type);
+
+	/// MySQL
+	if ($db_type == 'mysql') {
+		$sql = "UPDATE data SET filter=:filter WHERE id=:id";
+		$sth = $dbh->prepare($sql);
+		$sth->bindParam(':id',     $id,     PDO::PARAM_INT);
+		$sth->bindParam(':filter', $filter, PDO::PARAM_INT);
+		if (!$sth->execute()) mysqlError($sth);
+
+	// Mongo
+	} else {
+		try {
+			$dbh->data->update(array('_id' => $id), 
+				array('$set' => array("filter" => $filter)),
+				array('safe' => true));
+		} catch(MongoException $e) {
+			checkForMongoError($dbh);
+		}
+	}
 
 	// Output a status
 	$response = new stdClass;
@@ -239,7 +249,13 @@ function insertRandomMongo($dbh) {
 	$data->_id     = $dbh->data->count();
 	$data->filter = $filter;
 	$data->sort   = $sort;
-	$dbh->data->insert($data, array("safe" => true));
+
+	// Write it
+	try {
+		$dbh->data->insert($data, array('safe' => true));
+	} catch(MongoException $e) {
+		checkForMongoError($dbh);
+	}
 
 	// Return the id we used.  I couldn't find a Mongo specific way to do this besides
 	// http://stackoverflow.com/questions/4525556/mongodb-php-get-id-of-new-document.

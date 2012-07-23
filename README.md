@@ -2,10 +2,6 @@
 
 Speed testing a simple REST API built with PHP and MySQL.
 
-TODO:
-
-- Finish the update API
-
 ## Requirements
 
 - PHP 5.3
