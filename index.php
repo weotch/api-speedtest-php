@@ -205,12 +205,12 @@ function connect($db_type) {
 			$db   = empty($_ENV['MYSQL_DB']) ? 'api_speedtest' : $_ENV['MYSQL_DB'];
 			return new PDO("mysql:host={$host};dbname={$db}", $user, $pass);
 		case 'mongo':
-			$user = empty($_ENV['MONGO_USER']) ? '' : $_ENV['MONGO_USER'];
-			$pass = empty($_ENV['MONGO_PASS']) ? '' : $_ENV['MONGO_PASS'];
-			$host = empty($_ENV['MONGO_HOST']) ? 'localhost' : $_ENV['MONGO_HOST'];
-			$host = empty($_ENV['MONGO_DB']) ? 'api_speedtest' : $_ENV['MONGO_DB'];
+			$user  = empty($_ENV['MONGO_USER']) ? '' : $_ENV['MONGO_USER'];
+			$pass  = empty($_ENV['MONGO_PASS']) ? '' : $_ENV['MONGO_PASS'];
+			$host  = empty($_ENV['MONGO_HOST']) ? 'localhost' : $_ENV['MONGO_HOST'];
+			$db    = empty($_ENV['MONGO_DB']) ? 'api_speedtest' : $_ENV['MONGO_DB'];
 			$creds = empty($user) && empty($pass) ? '' : $user . ':'. $pass . '@';
-			$dbh = new Mongo("mongodb://{$creds}{$host}");
+			$dbh   = new Mongo("mongodb://{$creds}{$host}");
 			return $dbh->$db;
 		default:
 			$response = new stdClass;
