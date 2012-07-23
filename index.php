@@ -208,7 +208,7 @@ function connect($db_type) {
 			$user = empty($_ENV['MONGO_USER']) ? '' : $_ENV['MONGO_USER'];
 			$pass = empty($_ENV['MONGO_PASS']) ? '' : $_ENV['MONGO_PASS'];
 			$host = empty($_ENV['MONGO_HOST']) ? 'localhost' : $_ENV['MONGO_HOST'];
-			$db   = 'api_speedtest';
+			$host = empty($_ENV['MONGO_DB']) ? 'api_speedtest' : $_ENV['MONGO_DB'];
 			$creds = empty($user) && empty($pass) ? '' : $user . ':'. $pass . '@';
 			$dbh = new Mongo("mongodb://{$creds}{$host}");
 			return $dbh->$db;
