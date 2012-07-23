@@ -36,3 +36,7 @@ Here are the routes that have been setup as an example of common API methods.  I
 ## Getting Mongo running on MAMP
 
 I use MAMP locally.  To get Mongo running, I downloaded the Mac PHP 5.3 binary from the [Mongo Github](https://github.com/mongodb/mongo-php-driver/downloads) and dropped it in my `/Applications/MAMP/bin/php/php5.3.6/lib/php/extensions/no-debug-non-zts-20090626` directory.  Then I added `extension=mongo.so` to the Extensions block of the MAMP php.ini file. I installed Mongo using [Homebrew](http://mxcl.github.com/homebrew/).
+
+## Getting Mongo running on Heroku
+
+Follow [this gist](https://gist.github.com/1288447)
