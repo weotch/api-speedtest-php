@@ -26,13 +26,13 @@ The following environmental variables are used to set credentials for the databa
 - MONGO_DB (Default: api_speedtest)
 - MONGO_HOST (Default: localhost)
 
-Here are the routes that have been setup as an example of common API methods.  In all cases, {:db_type} may be "mysql" or "mongo".  For instance, test the insert API using the Mongo DB. by requesting `/insert/mongo`.  The expected MySQL schema is found in `schema.sql`.
+Here are the routes that have been setup as an example of common API methods.  In all cases, {:db_type} may be "mysql/" or "mongo/".  For instance, test the insert API using the Mongo DB. by requesting `/insert/mongo/`.  The expected MySQL schema is found in `schema.sql`.  Also, note that the trailing slash is required; this is because it is required by [Bees With Machine Guns](https://github.com/newsapps/beeswithmachineguns), which I'm stress testing with.
 
-- /seed/{:db_type} - Populate the databases with sample data.  Note: I had problems with timeouts when running them on the production servers.  You may need to import from the CLI.
-- /{:db_type} - Select a list of records by a criteria, order them, and return them
-- /show/{:db_type} - Select a single record by ID
-- /insert/{:db_type} - Insert a record
-- /update/{:db_type} - Update a record
+- /seed/{:db_type}/ - Populate the databases with sample data.  Note: I had problems with timeouts when running them on the production servers.  You may need to import from the CLI.
+- /{:db_type}/ - Select a list of records by a criteria, order them, and return them
+- /show/{:db_type}/ - Select a single record by ID
+- /insert/{:db_type}/ - Insert a record
+- /update/{:db_type}/ - Update a record
 
 ## Getting Mongo running on MAMP
 

@@ -11,7 +11,7 @@ $app = new Slim();
 // API Methods
 
 // Seed the database with content
-$app->get('/seed(/:db_type)', function($db_type='mysql') {
+$app->get('/seed/(:db_type/)', function($db_type='mysql') {
 	$time_start = microtime(true);
 
 	// Connect to db
@@ -55,7 +55,7 @@ $app->get('/seed(/:db_type)', function($db_type='mysql') {
 });
 
 // Show.  Select a random row
-$app->get('/show(/:db_type)', function($db_type='mysql') {	
+$app->get('/show/(:db_type/)', function($db_type='mysql') {	
 
 	// Connect
 	$dbh = connect($db_type);
@@ -86,7 +86,7 @@ $app->get('/show(/:db_type)', function($db_type='mysql') {
 });
 
 // Insert.  Create a row with random data
-$app->get('/insert(/:db_type)', function($db_type='mysql') {
+$app->get('/insert/(:db_type/)', function($db_type='mysql') {
 
 	// Connect
 	$dbh = connect($db_type);
@@ -111,7 +111,7 @@ $app->get('/insert(/:db_type)', function($db_type='mysql') {
 });
 
 // Update
-$app->get('/update(/:db_type)', function($db_type='mysql') {
+$app->get('/update/(:db_type/)', function($db_type='mysql') {
 
 	// Pick a random id to update
 	$id = mt_rand(0, TOTAL_SAMPLE_ROWS);
@@ -149,7 +149,7 @@ $app->get('/update(/:db_type)', function($db_type='mysql') {
 // Index, return 100 results.  This has to be defined last because of the
 // optional agument it takes will catch /show, for instance.  There is a WHERE
 // condition where we look for a filter set to '0'
-$app->get('/(:db_type)', function($db_type='mysql') {
+$app->get('/(:db_type/)', function($db_type='mysql') {
 
 	// connect
 	$dbh = connect($db_type);
