@@ -146,6 +146,14 @@ $app->get('/update/(:db_type/)', function($db_type='mysql') {
 
 });
 
+// Just return a canned response, no DB call
+$app->get('/static/', function() {
+	$response = new stdClass;
+	$response->stat = 'ok';
+	$response->static = true;
+	exit(json_encode($response));
+});
+
 // Index, return 100 results.  This has to be defined last because of the
 // optional agument it takes will catch /show, for instance.  There is a WHERE
 // condition where we look for a filter set to '0'

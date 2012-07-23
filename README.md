@@ -33,6 +33,7 @@ Here are the routes that have been setup as an example of common API methods.  I
 - /show/{:db_type}/ - Select a single record by ID
 - /insert/{:db_type}/ - Insert a record
 - /update/{:db_type}/ - Update a record
+- /static - No DB calls at all, just testing web server performance
 
 ## Getting Mongo running on MAMP
 
