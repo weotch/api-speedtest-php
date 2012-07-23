@@ -5,7 +5,6 @@ Speed testing a simple REST API built with PHP and MySQL.
 TODO:
 
 - Finish the update API
-- Check for errors in Mongo
 
 ## Requirements
 

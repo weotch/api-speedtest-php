@@ -23,7 +23,7 @@ $app->get('/seed(/:db_type)', function($db_type='mysql') {
 		// Empty db
 		$sql = "TRUNCATE data";
 		$sth = $dbh->prepare($sql);
-		if (!$sth->execute()) error($sth);
+		if (!$sth->execute()) mysqlError($sth);
 
 		// Create a bunch of sample data.
 		for ($i=0; $i<TOTAL_SAMPLE_ROWS; $i++) {
@@ -68,12 +68,13 @@ $app->get('/show(/:db_type)', function($db_type='mysql') {
 		$sql = "SELECT id, filter FROM data WHERE id=:id";
 		$sth = $dbh->prepare($sql);
 		$sth->bindParam(':id', $id, PDO::PARAM_INT);
-		if (!$sth->execute()) error($sth);
+		if (!$sth->execute()) mysqlError($sth);
 		$result = $sth->fetch(PDO::FETCH_ASSOC);
 
 	// Mongo
 	} else {
 		$result = $dbh->data->findOne(array("_id" => $id), array('_id', 'filter'));
+		checkForMongoError($dbh);
 		$result['id'] = $result['_id'];
 		unset($result['_id']);
 	}
@@ -97,7 +98,11 @@ $app->get('/insert(/:db_type)', function($db_type='mysql') {
 
 	// Mongo
 	} else {
-		$new_id = insertRandomMongo($dbh);
+		try {
+			$new_id = insertRandomMongo($dbh);
+		} catch(MongoException $e) {
+			checkForMongoError($dbh);
+		}
 	}
 	
 
@@ -122,7 +127,7 @@ $app->get('/update', function() {
 	$sth = $dbh->prepare($sql);
 	$sth->bindParam(':id',     $id,     PDO::PARAM_INT);
 	$sth->bindParam(':filter', $filter, PDO::PARAM_INT);
-	if (!$sth->execute()) error($sth);
+	if (!$sth->execute()) mysqlError($sth);
 
 	// Output a status
 	$response = new stdClass;
@@ -132,7 +137,8 @@ $app->get('/update', function() {
 });
 
 // Index, return 100 results.  This has to be defined last because of the
-// optional agument it takes will catch /show, for instance
+// optional agument it takes will catch /show, for instance.  There is a WHERE
+// condition where we look for a filter set to '0'
 $app->get('/(:db_type)', function($db_type='mysql') {
 
 	// connect
@@ -142,7 +148,7 @@ $app->get('/(:db_type)', function($db_type='mysql') {
 	if ($db_type == 'mysql') {
 		$sql = "SELECT id FROM data WHERE filter=0 ORDER BY sort LIMIT 100";
 		$sth = $dbh->prepare($sql);
-		if (!$sth->execute()) error($sth);
+		if (!$sth->execute()) mysqlError($sth);
 		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 	//Mongo
@@ -152,9 +158,11 @@ $app->get('/(:db_type)', function($db_type='mysql') {
 		$cursor = $dbh->data->find(array("filter" => 0), array('_id'))
 			->sort(array('sort' => 1))
 			->limit(100);
+		checkForMongoError($dbh);
 
-		// Create an array.  iterator_to_array() was of no use cause I want to
+		// Create an array for result.  iterator_to_array() was of no use cause I want to
 		// customize the name of the id field (don't want the API to use _id)
+		$result = array();
 		foreach ($cursor as $item) {
 			$result[] = array('id' => $item['_id']);
 		}
@@ -213,7 +221,7 @@ function insertRandomMySQL($dbh) {
 	$sth = $dbh->prepare($sql);
 	$sth->bindParam(':filter', $filter, PDO::PARAM_INT);
 	$sth->bindParam(':sort',   $sort,   PDO::PARAM_INT);
-	if (!$sth->execute()) error($sth);
+	if (!$sth->execute()) mysqlError($sth);
 
 }
 
@@ -242,11 +250,29 @@ function insertRandomMongo($dbh) {
 	
 }
 
-// Display an error response
-function error($sth) {
+// Display an error response for MySQL Queries
+function mysqlError($sth) {
 	$response = new stdClass;
 	$response->stat = 'error';
 	$response->msg  = implode(',', $sth->errorInfo());
+	exit(json_encode($response));
+}
+
+// Handle mongo errors.  Note, writes throw exceptions, so this is really just for find().
+// Well, I am using it to spit our write errors that get caught as exceptions, though.
+// Honestly, though, I couldn't get selects to throw an error when passing bad data.  So
+// in production, I think we should just see if results are returned when they're expected
+// and that's how we check.  Like if you give a bad key name in a document, there is no error.
+function checkForMongoError($dbh) {
+
+	// Check for error
+	$err = $dbh->lastError();
+	if (empty($err['err'])) return;
+
+	// There was an error
+	$response = new stdClass;
+	$response->stat = 'error';
+	$response->msg  = $err['err'];
 	exit(json_encode($response));
 }
 
