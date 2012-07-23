@@ -28,6 +28,7 @@ The following environmental variables are used to set credentials for the databa
 
 Here are the routes that have been setup as an example of common API methods.  In all cases, {:db_type} may be "mysql" or "mongo".  For instance, test the insert API using the Mongo DB. by requesting `/insert/mongo`.  The expected MySQL schema is found in `schema.sql`.
 
+- /seed/{:db_type} - Populate the databases with sample data.  Note: I had problems with timeouts when running them on the production servers.  You may need to import from the CLI.
 - /{:db_type} - Select a list of records by a criteria, order them, and return them
 - /show/{:db_type} - Select a single record by ID
 - /insert/{:db_type} - Insert a record
