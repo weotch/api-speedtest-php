@@ -207,17 +207,17 @@ function connect($db_type) {
 	// Switch on db type
 	switch($db_type) {
 		case 'mysql':
-			$user = $_ENV['MYSQL_USER'];
-			$pass = $_ENV['MYSQL_PASS'];
-			$host = empty($_ENV['MYSQL_HOST']) ? 'localhost' : $_ENV['MYSQL_HOST'];
-			$db   = empty($_ENV['MYSQL_DB']) ? 'api_speedtest' : $_ENV['MYSQL_DB'];
+			$user = getEnv('MYSQL_USER');
+			$pass = getEnv('MYSQL_PASS');
+			$host = getEnv('MYSQL_HOST') ? getEnv('MYSQL_HOST') : 'localhost';
+			$db   = getEnv('MYSQL_DB')   ? getEnv('MYSQL_DB')   : 'api_speedtest';
 			return new PDO("mysql:host={$host};dbname={$db}", $user, $pass);
 		case 'mongo':
-			$user  = empty($_ENV['MONGO_USER']) ? '' : $_ENV['MONGO_USER'];
-			$pass  = empty($_ENV['MONGO_PASS']) ? '' : $_ENV['MONGO_PASS'];
-			$host  = empty($_ENV['MONGO_HOST']) ? 'localhost' : $_ENV['MONGO_HOST'];
-			$db    = empty($_ENV['MONGO_DB']) ? 'api_speedtest' : $_ENV['MONGO_DB'];
-			$creds = empty($user) && empty($pass) ? '' : $user . ':'. $pass . '@';
+			$user  = getEnv('MONGO_USER') ? getEnv('MONGO_USER') : '';
+			$pass  = getEnv('MONGO_PASS') ? getEnv('MONGO_PASS') : '';
+			$host  = getEnv('MONGO_HOST') ? getEnv('MONGO_HOST') : 'localhost';
+			$db    = getEnv('MONGO_DB')   ? getEnv('MONGO_DB')   : 'api_speedtest';
+			$creds = $user && $pass ? $user . ':'. $pass . '@' : '';
 			$dbh   = new Mongo("mongodb://{$creds}{$host}");
 			return $dbh->$db;
 		default:
