@@ -196,18 +196,21 @@ $app->run();
 // Connect to database, switching between types.  Pulling in credentials from env variables
 function connect($db_type) {
 
-	// Shared vars
-	$db   = 'api_speedtest';
-	$host = "localhost";
-
 	// Switch on db type
 	switch($db_type) {
 		case 'mysql':
 			$user = $_SERVER['MYSQL_USER'];
 			$pass = $_SERVER['MYSQL_PASS'];
-			return new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+			$host = empty($_SERVER['MYSQL_HOST']) ? 'localhost' : $_SERVER['MYSQL_HOST'];
+			$db   = empty($_SERVER['MYSQL_DB']) ? 'api_speedtest' : $_SERVER['MYSQL_DB'];
+			return new PDO("mysql:host={$host};dbname={$db}", $user, $pass);
 		case 'mongo':
-			$dbh = new Mongo("mongodb://$host");
+			$user = empty($_SERVER['MONGO_USER']) ? '' : $_SERVER['MONGO_USER'];
+			$pass = empty($_SERVER['MONGO_PASS']) ? '' : $_SERVER['MONGO_PASS'];
+			$host = empty($_SERVER['MONGO_HOST']) ? 'localhost' : $_SERVER['MONGO_HOST'];
+			$db   = 'api_speedtest';
+			$creds = empty($user) && empty($pass) ? '' : $user . ':'. $pass . '@';
+			$dbh = new Mongo("mongodb://{$creds}{$host}");
 			return $dbh->$db;
 		default:
 			$response = new stdClass;

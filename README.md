@@ -17,8 +17,13 @@ Speed testing a simple REST API built with PHP and allowing user to use MySQL or
 
 The following environmental variables are used to set credentials for the databases:
 
-- MYSQL_USER
-- MYSQL_PASS
+- MYSQL_USER 
+- MYSQL_PASS 
+- MYSQL_DB (Default: api_speedtest)
+- MYSQL_HOST (Default: localhost)
+- MONGO_USER (Default: <empty>)
+- MONGO_PASS (Default: <empty>)
+- MONGO_HOST (Default: localhost)
 
 Here are the routes that have been setup as an example of common API methods.  In all cases, {:db_type} may be "mysql" or "mongo".  For instance, test the insert API using the Mongo DB. by requesting `/insert/mongo`.  The expected MySQL schema is found in `schema.sql`.
 
