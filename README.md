@@ -2,14 +2,21 @@
 
 Speed testing a simple REST API built with PHP and MySQL.
 
-## Expected stack
+TODO:
+
+- Refactor to use the Mongo auto ID instead of the one we're creating.  That is a more fair match against MySQL and what I would probably do in production
+- Finish the update API
+- Check for errors in Mongo
+
+## Requirements
 
 - PHP 5.3
 	- Using PDO
+	- Need Mongo extension
 - MySQL 5
 - Slim Framework 1.6.4
 - Mongo 2
-	- Al writes are "saafe"
+	- All writes are "saafe"
 - Apache 2
 
 ## Getting Mongo running on MAMP

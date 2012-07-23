@@ -54,7 +54,7 @@ $app->get('/seed(/:db_type)', function($db_type='mysql') {
 
 });
 
-// Show
+// Show.  Select a random row
 $app->get('/show(/:db_type)', function($db_type='mysql') {	
 
 	// Connect
@@ -73,7 +73,8 @@ $app->get('/show(/:db_type)', function($db_type='mysql') {
 
 	// Mongo
 	} else {
-		$result = $dbh->data->findOne(array("id" => $id), array('id', 'filter'));
+		$result = $dbh->data->findOne(array("_id" => $id), array('_id', 'filter'));
+		$result['id'] = $result['_id'];
 		unset($result['_id']);
 	}
 
@@ -83,16 +84,26 @@ $app->get('/show(/:db_type)', function($db_type='mysql') {
 
 });
 
-// Insert
-$app->get('/insert', function() {
+// Insert.  Create a row with random data
+$app->get('/insert(/:db_type)', function($db_type='mysql') {
 
-	// Create a row with random data
-	$dbh = connect();
-	insertRandomMySQL($dbh);
+	// Connect
+	$dbh = connect($db_type);
+
+	// MySQL
+	if ($db_type == 'mysql') {
+		insertRandomMySQL($dbh);
+		$new_id = $dbh->lastInsertId();
+
+	// Mongo
+	} else {
+		$new_id = insertRandomMongo($dbh);
+	}
+	
 
 	// Output the new id
 	$response = new stdClass;
-	$response->id = $dbh->lastInsertId();
+	$response->id = $new_id;
 	$response->stat = 'ok';
 	exit(json_encode($response));
 
@@ -135,18 +146,17 @@ $app->get('/(:db_type)', function($db_type='mysql') {
 		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 	//Mongo
-	} elseif ($db_type == 'mongo') { 
+	} else { 
 
 		// Query DB
-		$cursor = $dbh->data->find(array("filter" => 0), array('id'))
+		$cursor = $dbh->data->find(array("filter" => 0), array('_id'))
 			->sort(array('sort' => 1))
 			->limit(100);
 
 		// Create an array.  iterator_to_array() was of no use cause I want to
-		// strip out the _id field
-		$result = array();
+		// customize the name of the id field (don't want the API to use _id)
 		foreach ($cursor as $item) {
-			$result[] = array('id' => $item['id']);
+			$result[] = array('id' => $item['_id']);
 		}
 	}
 
@@ -216,13 +226,20 @@ function insertRandomMongo($dbh) {
 	$filter = round(mt_rand(0, TOTAL_SAMPLE_ROWS/100));
 	$sort   = mt_rand(0, TOTAL_SAMPLE_ROWS);
 
-	// Write to DB
+	// Create document
 	$data = new stdClass;
-	$data->id     = $dbh->data->count();
+	$data->_id     = $dbh->data->count();
 	$data->filter = $filter;
 	$data->sort   = $sort;
 	$dbh->data->insert($data, array("safe" => true));
 
+	// Return the id we used.  I couldn't find a Mongo specific way to do this besides
+	// http://stackoverflow.com/questions/4525556/mongodb-php-get-id-of-new-document.
+	// The docs (http://www.php.net/manual/en/mongocollection.insert.php) make me think
+	// that if I had instantiated a collection (new MongoCollection()) I would get the
+	// id back in the result from insert().
+	return $data->_id;
+	
 }
 
 // Display an error response
@@ -232,3 +249,4 @@ function error($sth) {
 	$response->msg  = implode(',', $sth->errorInfo());
 	exit(json_encode($response));
 }
+
